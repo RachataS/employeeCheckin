@@ -53,6 +53,8 @@ import KTCustomize from "@/layouts/main-layout/extras/Customize.vue";
 import { useRoute } from "vue-router";
 import { reinitializeComponents } from "@/core/plugins/keenthemes";
 import LayoutService from "@/core/services/LayoutService";
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref as dbRef, get } from "firebase/database";
 
 export default defineComponent({
   name: "default-layout",
