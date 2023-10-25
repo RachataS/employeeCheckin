@@ -7,22 +7,15 @@
       <h3 class="card-title align-items-start flex-column">
         <span class="card-label fw-bold fs-3 mb-1">Recent Statistics</span>
 
-        <span class="text-muted fw-semobold fs-7"
-          >More than 400 new members</span
-        >
+        <span class="text-muted fw-semobold fs-7">More than 400 new members</span>
       </h3>
       <!--end::Title-->
 
       <!--begin::Toolbar-->
       <div class="card-toolbar">
         <!--begin::Menu-->
-        <button
-          type="button"
-          class="btn btn-sm btn-icon btn-color-primary btn-active-light-primary"
-          data-kt-menu-trigger="click"
-          data-kt-menu-placement="bottom-end"
-          data-kt-menu-flip="top-end"
-        >
+        <button type="button" class="btn btn-sm btn-icon btn-color-primary btn-active-light-primary"
+          data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end" data-kt-menu-flip="top-end">
           <KTIcon icon-name="category" icon-class="fs-2" />
         </button>
         <Dropdown1></Dropdown1>
@@ -35,13 +28,7 @@
     <!--begin::Body-->
     <div class="card-body">
       <!--begin::Chart-->
-      <apexchart
-        ref="chartRef"
-        type="bar"
-        :options="chart"
-        :series="series"
-        :height="height"
-      ></apexchart>
+      <apexchart ref="chartRef" type="bar" :options="chart" :series="series" :height="height"></apexchart>
       <!--end::Chart-->
     </div>
     <!--end::Body-->
@@ -57,6 +44,8 @@ import type { ApexOptions } from "apexcharts";
 import Dropdown1 from "@/components/dropdown/Dropdown1.vue";
 import { getCSSVariableValue } from "@/assets/ts/_utils";
 import type VueApexCharts from "vue3-apexcharts";
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref as dbRef, get } from "firebase/database";
 
 export default defineComponent({
   name: "widget-1",
@@ -67,10 +56,96 @@ export default defineComponent({
   components: {
     Dropdown1,
   },
-  setup() {
+  data() {
+    return {
+      fetchedData: null,
+      data: ''
+    };
+  },
+
+  methods: {
+    async parsedData() {
+      try {
+        return JSON.parse(this.data);
+      } catch (error) {
+        console.error("Error parsing data:", error);
+        return null;
+      }
+    },
+    async fetchData() {
+      const firebaseConfig = {
+        apiKey: "AIzaSyAzugDwrepHZdvszOSFyGRga3IEg1qV-3c",
+        authDomain: "rfid-database-8c0f2.firebaseapp.com",
+        databaseURL: "https://rfid-database-8c0f2-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "rfid-database-8c0f2",
+        storageBucket: "rfid-database-8c0f2.appspot.com",
+        messagingSenderId: "509413991821",
+        appId: "1:509413991821:web:fef2ffd91ade42f62fc9c4",
+        measurementId: "G-LMGX06N1SW"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+
+      // Access the Realtime Database
+      const db = getDatabase(app);
+      const dataRef = dbRef(db, "RFID"); // Adjust the path as needed
+      try {
+        const snapshot = await get(dataRef);
+        if (snapshot.exists()) {
+          // Data found
+          this.fetchedData = snapshot.val(); // Store data in the component's data property
+
+        } else {
+          console.log("No data found.");
+        }
+      } catch (error) {
+        console.error("Error reading data:", error);
+      }
+    },
+  },
+  async mounted() {
+
+  },
+  async setup() {
+
     const chartRef = ref<typeof VueApexCharts | null>(null);
     const chart = ref<ApexOptions>({});
     const store = useThemeStore();
+    let fetchedData;
+
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAzugDwrepHZdvszOSFyGRga3IEg1qV-3c",
+      authDomain: "rfid-database-8c0f2.firebaseapp.com",
+      databaseURL: "https://rfid-database-8c0f2-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "rfid-database-8c0f2",
+      storageBucket: "rfid-database-8c0f2.appspot.com",
+      messagingSenderId: "509413991821",
+      appId: "1:509413991821:web:fef2ffd91ade42f62fc9c4",
+      measurementId: "G-LMGX06N1SW"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+
+    // Access the Realtime Database
+    const db = getDatabase(app);
+    const dataRef = dbRef(db, "RFID"); // Adjust the path as needed
+    try {
+      const snapshot = await get(dataRef);
+      if (snapshot.exists()) {
+        // Data found
+        fetchedData = snapshot.val(); //data in Object format you can call like below line
+        console.log(fetchedData.Datetime);
+      } else {
+        console.log("No data found.");
+      }
+    } catch (error) {
+      console.error("Error reading data:", error);
+    }
+    let data = JSON.stringify(fetchedData); //data in string format
+    console.log(data);
 
     const series = [
       {
@@ -111,6 +186,8 @@ export default defineComponent({
     };
   },
 });
+
+
 
 const chartOptions = (): ApexOptions => {
   const labelColor = getCSSVariableValue("--bs-gray-500");

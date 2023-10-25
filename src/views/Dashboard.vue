@@ -66,7 +66,7 @@ export default defineComponent({
     // Call the fetchData method using "this" to refer to the component
     await this.fetchData();
     this.data = JSON.stringify(this.fetchedData);
-    console.log("data = " + this.data);
+
   },
   setup() {
     return {

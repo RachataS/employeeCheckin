@@ -99,7 +99,7 @@ export default defineComponent({
   },
   props: {
     widgetClasses: String,
-    newdata: String,
+
   },
   data() {
     return {
@@ -151,10 +151,10 @@ export default defineComponent({
     },
   },
   async mounted() {
-    console.log('13 = ' + this.newdata);
+
     await this.fetchData();
     this.data = JSON.stringify(this.fetchedData);
-    console.log("Q13 = " + this.data);
+
   },
   setup() {
     return {
