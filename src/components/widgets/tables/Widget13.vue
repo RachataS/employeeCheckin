@@ -159,7 +159,7 @@ export default defineComponent({
       await this.fetchData();
       this.data = JSON.stringify(this.fetchedData);
       console.log(1);
-    }, 15000); // 30 seconds in milliseconds
+    }, 5000); // 30 seconds in milliseconds
   },
   setup() {
     return {

@@ -107,7 +107,7 @@ export default defineComponent({
   async mounted() {
 
   },
-  async setup() {
+  setup() {
 
     const chartRef = ref<typeof VueApexCharts | null>(null);
     const chart = ref<ApexOptions>({});
@@ -133,7 +133,7 @@ export default defineComponent({
     const db = getDatabase(app);
     const dataRef = dbRef(db, "RFID"); // Adjust the path as needed
     try {
-      const snapshot = await get(dataRef);
+      const snapshot = get(dataRef);
       if (snapshot.exists()) {
         // Data found
         fetchedData = snapshot.val(); //data in Object format you can call like below line
