@@ -151,10 +151,15 @@ export default defineComponent({
     },
   },
   async mounted() {
-
     await this.fetchData();
     this.data = JSON.stringify(this.fetchedData);
 
+    // Automatically refresh data every 30 seconds
+    setInterval(async () => {
+      await this.fetchData();
+      this.data = JSON.stringify(this.fetchedData);
+      console.log(1);
+    }, 15000); // 30 seconds in milliseconds
   },
   setup() {
     return {
