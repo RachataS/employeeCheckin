@@ -6,7 +6,6 @@
       <!--begin::Title-->
       <h3 class="card-title align-items-start flex-column">
         <span class="card-label fw-bold fs-3 mb-1">Recent Statistics</span>
-
         <span class="text-muted fw-semobold fs-7">More than 400 new members</span>
       </h3>
       <!--end::Title-->
@@ -59,12 +58,14 @@ export default defineComponent({
   data() {
     return {
       fetchedData: null,
-      data: ''
+      data: "",
+      categories: [] as string[],
+      chart: ref<ApexOptions>({}),
+      series: [] as any[], // Use an array for series data
     };
   },
-
-  methods: {
-    async parsedData() {
+  computed: {
+    parsedData() {
       try {
         return JSON.parse(this.data);
       } catch (error) {
@@ -72,16 +73,11 @@ export default defineComponent({
         return null;
       }
     },
+  },
+  methods: {
     async fetchData() {
       const firebaseConfig = {
-        apiKey: "AIzaSyAzugDwrepHZdvszOSFyGRga3IEg1qV-3c",
-        authDomain: "rfid-database-8c0f2.firebaseapp.com",
-        databaseURL: "https://rfid-database-8c0f2-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "rfid-database-8c0f2",
-        storageBucket: "rfid-database-8c0f2.appspot.com",
-        messagingSenderId: "509413991821",
-        appId: "1:509413991821:web:fef2ffd91ade42f62fc9c4",
-        measurementId: "G-LMGX06N1SW"
+        // ... (firebaseConfig, initializeApp, and dataRef code)
       };
 
       // Initialize Firebase
@@ -95,7 +91,13 @@ export default defineComponent({
         if (snapshot.exists()) {
           // Data found
           this.fetchedData = snapshot.val(); // Store data in the component's data property
+          this.categories = Object.keys(this.parsedData.Datetime);
 
+          // Update series data
+          this.series = this.categories.map((category) => ({
+            name: category,
+            data: this.parsedData.Datetime[category],
+          }));
         } else {
           console.log("No data found.");
         }
@@ -105,91 +107,46 @@ export default defineComponent({
     },
   },
   async mounted() {
+    await this.fetchData();
+    this.data = JSON.stringify(this.fetchedData);
 
-  },
-  setup() {
+    // Automatically refresh data every 30 seconds
+    setInterval(async () => {
+      await this.fetchData();
+    }, 5000); // 30 seconds in milliseconds
 
-    const chartRef = ref<typeof VueApexCharts | null>(null);
-    const chart = ref<ApexOptions>({});
     const store = useThemeStore();
-    let fetchedData;
 
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAzugDwrepHZdvszOSFyGRga3IEg1qV-3c",
-      authDomain: "rfid-database-8c0f2.firebaseapp.com",
-      databaseURL: "https://rfid-database-8c0f2-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "rfid-database-8c0f2",
-      storageBucket: "rfid-database-8c0f2.appspot.com",
-      messagingSenderId: "509413991821",
-      appId: "1:509413991821:web:fef2ffd91ade42f62fc9c4",
-      measurementId: "G-LMGX06N1SW"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-
-    // Access the Realtime Database
-    const db = getDatabase(app);
-    const dataRef = dbRef(db, "RFID"); // Adjust the path as needed
-    try {
-      const snapshot = get(dataRef);
-      if (snapshot.exists()) {
-        // Data found
-        fetchedData = snapshot.val(); //data in Object format you can call like below line
-        console.log(fetchedData.Datetime);
-      } else {
-        console.log("No data found.");
+    onBeforeMount(() => {
+      // Update chart options directly
+      const options = chartOptions(this.categories);
+      if (this.$refs.chartRef) {
+        this.$refs.chartRef.updateOptions(options);
       }
-    } catch (error) {
-      console.error("Error reading data:", error);
-    }
-    let data = JSON.stringify(fetchedData); //data in string format
-    console.log(data);
+    });
 
-    const series = [
-      {
-        name: "Net Profit",
-        data: [44, 55, 57, 56, 61, 58],
-      },
-      {
-        name: "Revenue",
-        data: [76, 85, 101, 98, 87, 105],
-      },
-    ];
+    const refreshChart = () => {
+      if (this.$refs.chartRef) {
+        this.$refs.chartRef.updateOptions(chartOptions(this.categories));
+      }
+    };
 
     const themeMode = computed(() => {
       return store.mode;
     });
 
-    onBeforeMount(() => {
-      Object.assign(chart.value, chartOptions());
-    });
-
-    const refreshChart = () => {
-      if (!chartRef.value) {
-        return;
-      }
-
-      chartRef.value.updateOptions(chartOptions());
-    };
-
     watch(themeMode, () => {
       refreshChart();
     });
-
+  },
+  setup() {
     return {
-      chart,
-      series,
-      chartRef,
       getAssetPath,
     };
   },
 });
 
-
-
-const chartOptions = (): ApexOptions => {
+const chartOptions = (categories: string[]): ApexOptions => {
   const labelColor = getCSSVariableValue("--bs-gray-500");
   const borderColor = getCSSVariableValue("--bs-gray-200");
   const baseColor = getCSSVariableValue("--bs-primary");
@@ -222,7 +179,7 @@ const chartOptions = (): ApexOptions => {
       colors: ["transparent"],
     },
     xaxis: {
-      categories: ["Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+      categories: categories,
       axisBorder: {
         show: false,
       },

@@ -2,10 +2,11 @@
   <!---HTML-->
   <div>
     <div class="mt-15">
-      <Chart1 :height="400"></Chart1>
+
+      <apexchart type="pie" width="380" :options="chartOptions" :series="series"></apexchart>
     </div>
     <div class="mt-5">
-      <Table13 :newdata="data" />
+      <Table13 />
     </div>
   </div>
 </template>
@@ -15,7 +16,7 @@ import { defineComponent, ref, onMounted } from "vue";
 import { initializeApp } from "firebase/app";
 import Chart1 from "@/components/widgets/charts/Widget1.vue"
 import Table13 from "@/components/widgets/tables/Widget13.vue"
-import { getDatabase, ref as dbRef, get } from "firebase/database";
+import { getDatabase, ref as dbRef, get, connectDatabaseEmulator } from "firebase/database";
 
 export default defineComponent({
   name: "Dashboard",
@@ -26,8 +27,38 @@ export default defineComponent({
   data() {
     return {
       fetchedData: null,
-      data: ''
+      data: [],
+      series: [3,],
+      chartOptions: {
+        chart: {
+          width: 380,
+          type: 'pie',
+        },
+        labels: ['All employee', 'Employee check in'],
+        responsive: [{
+          breakpoint: 480,
+          options: {
+            chart: {
+              width: 200
+            },
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }]
+      },
+      dateToRetrieve: "27-10-2023",
     };
+  },
+  computed: {
+    parsedData() {
+      try {
+        return JSON.parse(this.data);
+      } catch (error) {
+        console.error("Error parsing data:", error);
+        return null;
+      }
+    },
   },
   methods: {
     async fetchData() {
@@ -63,11 +94,35 @@ export default defineComponent({
     },
   },
   async mounted() {
-    // Call the fetchData method using "this" to refer to the component
     await this.fetchData();
     this.data = JSON.stringify(this.fetchedData);
+    console.log(Object.keys(this.parsedData.Datetime));
 
+    if (this.parsedData.Datetime && this.parsedData.Datetime[this.dateToRetrieve]) {
+      // Get the objects for the specified date
+      const objects = this.parsedData.Datetime[this.dateToRetrieve];
+
+      // Push the count of objects into the series
+      this.series.push(Object.keys(objects).length);
+    } else {
+      // Handle the case where the date is not found
+      console.log(`No data found for date: ${this.dateToRetrieve}`);
+    }
+
+    setInterval(async () => {
+      await this.fetchData();
+      this.data = JSON.stringify(this.fetchedData);
+      if (this.parsedData.Datetime && this.parsedData.Datetime[this.dateToRetrieve]) {
+        // Get the objects for the specified date
+        const objects = this.parsedData.Datetime[this.dateToRetrieve];
+        this.series.pop();
+        // Push the count of objects into the series
+        this.series.push(Object.keys(objects).length);
+      }
+    }, 1000);
   },
+
+
   setup() {
     return {
 
