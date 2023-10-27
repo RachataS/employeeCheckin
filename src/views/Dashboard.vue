@@ -1,13 +1,24 @@
 <template>
   <!---HTML-->
-  <div>
-    <div class="mt-15">
 
-      <apexchart type="pie" width="380" :options="chartOptions" :series="series"></apexchart>
+  <div :class="widgetClasses" class="card">
+    <div>
+      <h3 class="mt-15">
+        <span class="card-label fw-bold fs-3 mb-1">{{ dateToRetrieve }}</span>
+
+      </h3>
+      <div class="mt-15">
+
+        <apexchart type="pie" width="380" :options="chartOptions" :series="series"></apexchart>
+      </div>
+
     </div>
-    <div class="mt-5">
-      <Table13 />
-    </div>
+  </div>
+
+  <div :class="widgetClasses" class="card">
+
+    <Table13 />
+
   </div>
 </template>
 
@@ -17,6 +28,7 @@ import { initializeApp } from "firebase/app";
 import Chart1 from "@/components/widgets/charts/Widget1.vue"
 import Table13 from "@/components/widgets/tables/Widget13.vue"
 import { getDatabase, ref as dbRef, get, connectDatabaseEmulator } from "firebase/database";
+import { date } from "yup";
 
 export default defineComponent({
   name: "Dashboard",
