@@ -39,7 +39,7 @@ export default defineComponent({
     return {
       fetchedData: null,
       data: [],
-      series: [3,],
+      series: [3, 0],
       chartOptions: {
         chart: {
           width: 380,
@@ -120,7 +120,7 @@ export default defineComponent({
       const objects = this.parsedData.Datetime[this.dateToRetrieve];
 
       // Push the count of objects into the series
-      this.series.push(Object.keys(objects).length);
+      this.series[1] = Object.keys(objects).length;
     } else {
       // Handle the case where the date is not found
       console.log(`No data found for date: ${this.dateToRetrieve}`);
@@ -132,9 +132,12 @@ export default defineComponent({
       if (this.parsedData.Datetime && this.parsedData.Datetime[this.dateToRetrieve]) {
         // Get the objects for the specified date
         const objects = this.parsedData.Datetime[this.dateToRetrieve];
-        this.series.pop();
-        // Push the count of objects into the series
-        this.series.push(Object.keys(objects).length);
+        if (this.series[1] < Object.keys(objects).length) {
+          this.series[0]--;
+          this.series[1] = Object.keys(objects).length;
+          console.log(this.series);
+        }
+        console.log(this.series[1]);
       }
     }, 1000);
   },
