@@ -2,15 +2,19 @@
   <!---HTML-->
 
   <div :class="widgetClasses" class="card">
-    <div>
-      <h3 class="mt-15">
-        <span class="card-label fw-bold fs-3 mb-1">{{ dateToRetrieve }}</span>
-      </h3>
-      <div class="mt-15">
-
-        <apexchart type="pie" width="380" :options="chartOptions" :series="series"></apexchart>
+    <div class="card-header border-0 pt-5">
+      <div class="d-flex align-items-start justify-content-start">
+        <h3 class="card-label fw-bold fs-3 mb-1"> วันที่ </h3>
+        <h3 class="card-label fw-bold fs-3 mb-1"> {{ dateToRetrieve }}</h3>
+        <div class="mt-15">
+          <apexchart type="pie" width="380" :options="chartOptions" :series="series"></apexchart>
+        </div>
       </div>
-
+      <!-- <div class="d-flex flex-column align-items-start justify-content-center">
+        <div class="mt-15">
+          <apexchart type="pie" width="380" :options="chartOptions" :series="series"></apexchart>
+        </div>
+      </div> -->
     </div>
   </div>
 
