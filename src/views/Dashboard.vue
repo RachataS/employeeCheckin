@@ -5,7 +5,6 @@
     <div>
       <h3 class="mt-15">
         <span class="card-label fw-bold fs-3 mb-1">{{ dateToRetrieve }}</span>
-
       </h3>
       <div class="mt-15">
 
@@ -59,7 +58,6 @@ export default defineComponent({
           }
         }]
       },
-      dateToRetrieve: "27-10-2023",
     };
   },
   computed: {
@@ -70,6 +68,13 @@ export default defineComponent({
         console.error("Error parsing data:", error);
         return null;
       }
+    },
+    dateToRetrieve() {
+      const currentDate = new Date();
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+      const day = String(currentDate.getDate()).padStart(2, '0');
+      return `${day}-${month}-${year}`;
     },
   },
   methods: {
